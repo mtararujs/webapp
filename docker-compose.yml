@@ -1,0 +1,32 @@
+version: '3.8'
+services:
+  postgress-db:
+    image: postgres:latest
+    container_name: postgress-db
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+      - POSTGRES_DB=mydatabase
+    volumes:
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+  backend:
+    build: ./backend
+    image: webapp-backend
+    container_name: backend
+    ports:
+      - 5050:5050
+    depends_on:
+      - postgress-db
+  frontend:
+    build: ./frontend
+    image: webapp-frontend
+    container_name: frontend
+    ports:
+      - 3000:80
+    depends_on:
+      - backend
+
+
+
+# docker run --name postgress-db -e POSTGRES_PASSWORD=mysecretpassword -e POSTGRES_DB=mydatabase -v ${PWD}/init.sql:/docker-entrypoint-initdb.d/init.sql --network=webapp-network postgres
+# docker run --rm --network=webapp-network -p 5050:5050 webapp-backend
+# docker run --rm --network=webapp-network -p 3000:80 webapp-frontend
